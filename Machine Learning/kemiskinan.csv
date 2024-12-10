@@ -1,0 +1,32 @@
+import streamlit as st
+import joblib
+import numpy as np
+
+# Load model dan encoder
+model = joblib.load('ML_kemiskinan.pkl')
+encoder = joblib.load('encoder.pkl') 
+
+st.title("Prediksi Tingkat Kemiskinan Tertinggi")
+
+# Input dari pengguna
+provinsi = st.text_input("Provinsi")
+jumlah_penduduk = st.number_input("Jumlah Penduduk")
+jumlah_penduduk_n = st.number_input("Jumlah Penduduk Normalisasi")
+tingkat_kemiskinan = st.number_input("Tingkat Kemiskinan (%)")
+ipm = st.number_input("Indeks Pembangunan Manusia (IPM)")
+usia_produktif = st.number_input("Proporsi Usia Produktif (%)")
+akses_pln = st.number_input("Persentase Akses PLN (%)")
+kepadatan = st.number_input("Kepadatan Penduduk")
+pengeluaran = st.number_input("Pengeluaran per Kapita")
+pengeluaran_n = st.number_input("Pengeluaran per Kapita Normalisasi")
+kategori_miskin = st.number_input("Kategori Kemiskinan (kode numerik)")
+
+if st.button("Prediksi"):
+    # Data input berbentuk array 2D
+    data = np.array([[jumlah_penduduk, jumlah_penduduk_n, tingkat_kemiskinan, ipm, usia_produktif, akses_pln, kepadatan, pengeluaran, pengeluaran_n, kategori_miskin]])
+    try:
+        pred_label = model.predict(data)[0]
+        pred_kemiskinan = encoder.inverse_transform([pred_label])[0]
+        st.success(f"Prediksi kategori kemiskinan untuk provinsi {provinsi} adalah: {pred_kemiskinan}")
+    except Exception as e:
+        st.error(f"Terjadi kesalahan: {e}")
